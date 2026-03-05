@@ -4,6 +4,11 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 
+/**
+ * Utility class for managing database connections.
+ * This class establishes a JDBC connection to the MySQL database.
+ * Ensure the MySQL Connector JAR is in the WEB-INF/lib directory.
+ */
 public class DBConnection {
     private static final String URL = "jdbc:mysql://localhost:3306/smart_attendance";
     private static final String USER = "root"; // Update with actual DB user

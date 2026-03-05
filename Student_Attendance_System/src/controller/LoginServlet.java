@@ -11,6 +11,11 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import java.io.IOException;
 
+/**
+ * LoginServlet handles user authentication.
+ * It checks the database via UserDAO to verify email and password.
+ * On success, it creates an HTTP session and redirects based on the user's role (admin vs student).
+ */
 @WebServlet("/LoginServlet")
 public class LoginServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -36,7 +41,8 @@ public class LoginServlet extends HttpServlet {
             if ("admin".equals(user.getRole())) {
                 response.sendRedirect("AdminServlet");
             } else {
-                response.sendRedirect("profile.jsp");
+                // Load profile data (available + enrolled courses) via CourseServlet
+                response.sendRedirect("CourseServlet");
             }
         } else {
             response.sendRedirect("login.jsp?error=Invalid email or password!");

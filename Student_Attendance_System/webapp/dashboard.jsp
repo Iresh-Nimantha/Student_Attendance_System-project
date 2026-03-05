@@ -114,6 +114,18 @@
                         .table> :not(caption)>*>* {
                             padding: 1rem 1rem;
                         }
+
+                        @media (max-width: 768px) {
+                            .wrapper {
+                                flex-direction: column;
+                            }
+
+                            #sidebar {
+                                min-width: 100%;
+                                max-width: 100%;
+                                min-height: auto;
+                            }
+                        }
                     </style>
                 </head>
 
@@ -128,13 +140,16 @@
 
                             <ul class="list-unstyled components">
                                 <li class="active">
-                                    <a href="<%=request.getContextPath()%>/AdminServlet"><i class="fa-solid fa-users"></i> Users</a>
+                                    <a href="<%=request.getContextPath()%>/AdminServlet"><i
+                                            class="fa-solid fa-users"></i> Users</a>
                                 </li>
                                 <li>
-                                    <a href="<%=request.getContextPath()%>/AdminCourseServlet"><i class="fa-solid fa-book"></i> Courses & Enrollments</a>
+                                    <a href="<%=request.getContextPath()%>/AdminCourseServlet"><i
+                                            class="fa-solid fa-book"></i> Courses & Enrollments</a>
                                 </li>
                                 <li>
-                                    <a href="<%=request.getContextPath()%>/AdminCourseServlet"><i class="fa-solid fa-calendar-check"></i> Attendance</a>
+                                    <a href="<%=request.getContextPath()%>/AdminCourseServlet"><i
+                                            class="fa-solid fa-calendar-check"></i> Attendance</a>
                                 </li>
                             </ul>
                         </nav>
@@ -172,13 +187,22 @@
                                                     <div class="card card-custom">
                                                         <div
                                                             class="card-header-custom d-flex justify-content-between align-items-center">
-                                                            <span>All Registered Users</span>
-                                                            <span class="badge bg-primary rounded-pill">Total:
+                                                            <span>Administrator Accounts</span>
+                                                            <span class="badge bg-danger rounded-pill">
                                                                 <% List<User> usersList = (List<User>)
                                                                         request.getAttribute("users");
-                                                                        out.print(usersList != null ? usersList.size() :
-                                                                        "0");
-                                                                        %>
+                                                                        List<User> admins = new java.util.ArrayList<>();
+                                                                                List<User> students = new
+                                                                                    java.util.ArrayList<>();
+                                                                                        if (usersList != null) {
+                                                                                        for (User u : usersList) {
+                                                                                        if ("admin".equals(u.getRole()))
+                                                                                        admins.add(u);
+                                                                                        else students.add(u);
+                                                                                        }
+                                                                                        }
+                                                                                        out.print(admins.size());
+                                                                                        %>
                                                             </span>
                                                         </div>
                                                         <div class="card-body p-0">
@@ -190,12 +214,13 @@
                                                                             <th>Name</th>
                                                                             <th>Email</th>
                                                                             <th>Role</th>
-                                                                            <th>Joined Date</th>
+                                                                            <th>Password</th>
+                                                                            <th>Actions</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
-                                                                        <% if (usersList !=null && !usersList.isEmpty())
-                                                                            { for (User u : usersList) { %>
+                                                                        <% if (!admins.isEmpty()) { for (User u :
+                                                                            admins) { %>
                                                                             <tr>
                                                                                 <td>#<%= u.getId() %>
                                                                                 </td>
@@ -205,25 +230,158 @@
                                                                                 <td>
                                                                                     <%= u.getEmail() %>
                                                                                 </td>
-                                                                                <td>
-                                                                                    <% if ("admin".equals(u.getRole()))
-                                                                                        { %>
-                                                                                        <span
-                                                                                            class="badge bg-danger">Admin</span>
-                                                                                        <% } else { %>
-                                                                                            <span
-                                                                                                class="badge bg-success">Student</span>
-                                                                                            <% } %>
+                                                                                <td><span
+                                                                                        class="badge bg-danger">Admin</span>
                                                                                 </td>
                                                                                 <td class="text-muted">
-                                                                                    <%= u.getCreatedAt() %>
+                                                                                    <%= u.getPassword() !=null ?
+                                                                                        u.getPassword() : "******" %>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <button
+                                                                                        class="btn btn-sm btn-outline-primary"
+                                                                                        onclick="openEditModal('<%= u.getId() %>', '<%= u.getName() %>', '<%= u.getEmail() %>', '<%= u.getRole() %>')"
+                                                                                        title="Edit">
+                                                                                        <i class="fa-solid fa-edit"></i>
+                                                                                        Edit
+                                                                                    </button>
+                                                                                    <form
+                                                                                        action="<%=request.getContextPath()%>/AdminServlet"
+                                                                                        method="POST" class="d-inline">
+                                                                                        <input type="hidden"
+                                                                                            name="action"
+                                                                                            value="copyUser">
+                                                                                        <input type="hidden" name="id"
+                                                                                            value="<%= u.getId() %>">
+                                                                                        <button type="submit"
+                                                                                            class="btn btn-sm btn-outline-success"
+                                                                                            title="Copy">
+                                                                                            <i
+                                                                                                class="fa-solid fa-copy"></i>
+                                                                                            Copy
+                                                                                        </button>
+                                                                                    </form>
+                                                                                    <form
+                                                                                        action="<%=request.getContextPath()%>/AdminServlet"
+                                                                                        method="POST" class="d-inline"
+                                                                                        onsubmit="return confirm('Are you sure you want to delete this admin?');">
+                                                                                        <input type="hidden"
+                                                                                            name="action"
+                                                                                            value="deleteUser">
+                                                                                        <input type="hidden" name="id"
+                                                                                            value="<%= u.getId() %>">
+                                                                                        <button type="submit"
+                                                                                            class="btn btn-sm btn-outline-danger"
+                                                                                            title="Delete">
+                                                                                            <i
+                                                                                                class="fa-solid fa-trash"></i>
+                                                                                            Delete
+                                                                                        </button>
+                                                                                    </form>
                                                                                 </td>
                                                                             </tr>
                                                                             <% } } else { %>
                                                                                 <tr>
-                                                                                    <td colspan="5"
+                                                                                    <td colspan="6"
                                                                                         class="text-center py-4">No
                                                                                         users found in database.</td>
+                                                                                </tr>
+                                                                                <% } %>
+                                                                    </tbody>
+                                                                </table>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Manage Students Table -->
+                                                    <div class="card card-custom">
+                                                        <div
+                                                            class="card-header-custom d-flex justify-content-between align-items-center">
+                                                            <span>Registered Students</span>
+                                                            <span class="badge bg-success rounded-pill">
+                                                                <% out.print(students.size()); %>
+                                                            </span>
+                                                        </div>
+                                                        <div class="card-body p-0">
+                                                            <div class="table-responsive">
+                                                                <table class="table table-hover mb-0">
+                                                                    <thead class="table-light">
+                                                                        <tr>
+                                                                            <th>ID</th>
+                                                                            <th>Name</th>
+                                                                            <th>Email</th>
+                                                                            <th>Role</th>
+                                                                            <th>Password</th>
+                                                                            <th>Actions</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        <% if (!students.isEmpty()) { for (User u :
+                                                                            students) { %>
+                                                                            <tr>
+                                                                                <td>#<%= u.getId() %>
+                                                                                </td>
+                                                                                <td class="fw-bold">
+                                                                                    <%= u.getName() %>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <%= u.getEmail() %>
+                                                                                </td>
+                                                                                <td><span
+                                                                                        class="badge bg-success">Student</span>
+                                                                                </td>
+                                                                                <td class="text-muted">
+                                                                                    <%= u.getPassword() !=null ?
+                                                                                        u.getPassword() : "******" %>
+                                                                                </td>
+                                                                                <td>
+                                                                                    <button
+                                                                                        class="btn btn-sm btn-outline-primary"
+                                                                                        onclick="openEditModal('<%= u.getId() %>', '<%= u.getName() %>', '<%= u.getEmail() %>', '<%= u.getRole() %>')"
+                                                                                        title="Edit">
+                                                                                        <i class="fa-solid fa-edit"></i>
+                                                                                        Edit
+                                                                                    </button>
+                                                                                    <form
+                                                                                        action="<%=request.getContextPath()%>/AdminServlet"
+                                                                                        method="POST" class="d-inline">
+                                                                                        <input type="hidden"
+                                                                                            name="action"
+                                                                                            value="copyUser">
+                                                                                        <input type="hidden" name="id"
+                                                                                            value="<%= u.getId() %>">
+                                                                                        <button type="submit"
+                                                                                            class="btn btn-sm btn-outline-success"
+                                                                                            title="Copy">
+                                                                                            <i
+                                                                                                class="fa-solid fa-copy"></i>
+                                                                                            Copy
+                                                                                        </button>
+                                                                                    </form>
+                                                                                    <form
+                                                                                        action="<%=request.getContextPath()%>/AdminServlet"
+                                                                                        method="POST" class="d-inline"
+                                                                                        onsubmit="return confirm('Are you sure you want to delete this student?');">
+                                                                                        <input type="hidden"
+                                                                                            name="action"
+                                                                                            value="deleteUser">
+                                                                                        <input type="hidden" name="id"
+                                                                                            value="<%= u.getId() %>">
+                                                                                        <button type="submit"
+                                                                                            class="btn btn-sm btn-outline-danger"
+                                                                                            title="Delete">
+                                                                                            <i
+                                                                                                class="fa-solid fa-trash"></i>
+                                                                                            Delete
+                                                                                        </button>
+                                                                                    </form>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <% } } else { %>
+                                                                                <tr>
+                                                                                    <td colspan="6"
+                                                                                        class="text-center py-4">No
+                                                                                        student records found.</td>
                                                                                 </tr>
                                                                                 <% } %>
                                                                     </tbody>
@@ -278,7 +436,68 @@
                         </div>
                     </div>
 
+                    <!-- Edit User Modal -->
+                    <div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="<%=request.getContextPath()%>/AdminServlet" method="POST">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                            aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <input type="hidden" name="action" value="editUser">
+                                        <input type="hidden" name="id" id="editUserId">
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-bold">Full Name</label>
+                                            <input type="text" class="form-control" name="name" id="editUserName"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-bold">Email Address</label>
+                                            <input type="email" class="form-control" name="email" id="editUserEmail"
+                                                required>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-bold">Role</label>
+                                            <select class="form-select" name="role" id="editUserRole" required>
+                                                <option value="admin">Admin</option>
+                                                <option value="student">Student</option>
+                                            </select>
+                                        </div>
+
+                                        <div class="mb-3">
+                                            <label class="form-label text-muted small fw-bold">New Password (leave blank
+                                                to keep current)</label>
+                                            <input type="password" class="form-control" name="password">
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary"
+                                            data-bs-dismiss="modal">Cancel</button>
+                                        <button type="submit" class="btn btn-primary">Save Changes</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                    <script>
+                        function openEditModal(id, name, email, role) {
+                            document.getElementById('editUserId').value = id;
+                            document.getElementById('editUserName').value = name;
+                            document.getElementById('editUserEmail').value = email;
+                            document.getElementById('editUserRole').value = role;
+                            var editModal = new bootstrap.Modal(document.getElementById('editUserModal'));
+                            editModal.show();
+                        }
+                    </script>
                 </body>
 
                 </html>

@@ -93,7 +93,8 @@
                                 <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
                                     <ul class="navbar-nav">
                                         <li class="nav-item">
-                                            <a class="nav-link" href="#">Profile</a>
+                                            <a class="nav-link"
+                                                href="<%=request.getContextPath()%>/CourseServlet">Profile</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link text-danger" href="LoginServlet?action=logout">Logout</a>
@@ -155,6 +156,14 @@
                                                                             <option value="<%= c.getCourseId() %>">
                                                                                 <%= c.getCourseCode() %> - <%=
                                                                                         c.getCourseName() %>
+                                                                                        <% if (c.getLectureDay() !=null)
+                                                                                            { %>
+                                                                                            (<%= c.getLectureDay() %> @
+                                                                                                <%= c.getLectureTime()
+                                                                                                    !=null ?
+                                                                                                    c.getLectureTime()
+                                                                                                    : "TBD" %>)
+                                                                                                    <% } %>
                                                                             </option>
                                                                             <% } } else { %>
                                                                                 <option value="" disabled>No courses
@@ -185,12 +194,31 @@
                                                                             <h6 class="mb-0 fw-bold">
                                                                                 <%= c.getCourseName() %>
                                                                             </h6>
-                                                                            <small class="text-muted">
+                                                                            <small class="text-muted d-block">
                                                                                 <%= c.getCourseCode() %>
                                                                             </small>
+                                                                            <% if (c.getLectureDay() !=null) { %>
+                                                                                <small
+                                                                                    class="text-primary fw-medium mt-1 d-block"><i
+                                                                                        class="fa-regular fa-clock me-1"></i>
+                                                                                    <%= c.getLectureDay() %> at <%=
+                                                                                            c.getLectureTime() !=null ?
+                                                                                            c.getLectureTime() : "TBD"
+                                                                                            %>
+                                                                                </small>
+                                                                                <% } %>
                                                                         </div>
-                                                                        <span
-                                                                            class="badge bg-primary rounded-pill">Enrolled</span>
+                                                                        <form action="<%=request.getContextPath()%>/CourseServlet"
+                                                                            method="POST" class="mb-0">
+                                                                            <input type="hidden" name="action"
+                                                                                value="unenroll">
+                                                                            <input type="hidden" name="courseId"
+                                                                                value="<%= c.getCourseId() %>">
+                                                                            <button type="submit"
+                                                                                class="btn btn-sm btn-outline-danger">
+                                                                                Cancel
+                                                                            </button>
+                                                                        </form>
                                                                     </li>
                                                                     <% } } else { %>
                                                                         <li class="list-group-item text-muted">You are

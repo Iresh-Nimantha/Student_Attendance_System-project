@@ -18,6 +18,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Handles the admin "Mark Attendance" page for a single course.
+ *
+ * GET:  loads course + enrolled students + past lecture summaries.
+ * POST: creates a new lecture row and stores one attendance record per student.
+ */
 @WebServlet("/AdminAttendanceServlet")
 public class AdminAttendanceServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -67,10 +73,14 @@ public class AdminAttendanceServlet extends HttpServlet {
         }
 
         List<User> students = courseDAO.getStudentsForCourse(courseId);
+        java.util.List<model.LectureRecord> pastLectures = attendanceDAO.getPastLecturesSummary(courseId);
 
         request.setAttribute("course", course);
+        request.setAttribute("defaultLectureDay", course.getLectureDay() != null ? course.getLectureDay() : "");
+        request.setAttribute("defaultLectureTime", course.getLectureTime() != null ? course.getLectureTime().toString() : "");
         request.setAttribute("students", students);
         request.setAttribute("courseId", courseId);
+        request.setAttribute("pastLectures", pastLectures);
 
         request.getRequestDispatcher("admin_attendance.jsp").forward(request, response);
     }
@@ -108,10 +118,9 @@ public class AdminAttendanceServlet extends HttpServlet {
             return;
         }
 
-        LocalDate lectureDate = LocalDate.parse(dateParam);
         LocalTime lectureTime = LocalTime.parse(timeParam);
 
-        int lectureId = attendanceDAO.createLecture(courseId, lectureDate, lectureTime);
+        int lectureId = attendanceDAO.createLecture(courseId, dateParam, lectureTime);
         if (lectureId <= 0) {
             response.sendRedirect("AdminAttendanceServlet?courseId=" + courseId + "&error=Failed to create lecture.");
             return;
