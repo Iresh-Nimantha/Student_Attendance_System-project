@@ -309,7 +309,7 @@
                                                                                 <i class="fa-solid fa-user-clock"></i>
                                                                                 Late
                                                                             </th>
-                                                                            <th>Details</th>
+                                                                            <th>Actions</th>
                                                                         </tr>
                                                                     </thead>
                                                                     <tbody>
@@ -339,13 +339,27 @@
                                                                                         <%= lr.getLateCount() %>
                                                                                     </span>
                                                                                 </td>
-                                                                                <td>
+                                                                                <td class="d-flex gap-2">
                                                                                     <a
                                                                                         href="AdminLectureDetailsServlet?lectureId=<%= lr.getLectureId() %>&courseId=<%= courseId != null ? courseId : 0 %>&lectureDate=<%= lr.getLectureDate() %>&lectureTime=<%= lr.getLectureTime() != null ? lr.getLectureTime().toString() : "" %>"
                                                                                         class="btn btn-sm btn-outline-secondary">
                                                                                         <i class="fa-solid fa-list"></i>
                                                                                         View Students
                                                                                     </a>
+                                                                                    <form
+                                                                                        action="AdminDeleteLectureServlet"
+                                                                                        method="post"
+                                                                                        onsubmit="return confirm('Are you sure you want to delete this lecture and all its attendance records?');">
+                                                                                        <input type="hidden" name="lectureId"
+                                                                                            value="<%= lr.getLectureId() %>">
+                                                                                        <input type="hidden" name="courseId"
+                                                                                            value="<%= courseId != null ? courseId : 0 %>">
+                                                                                        <button type="submit"
+                                                                                            class="btn btn-sm btn-outline-danger">
+                                                                                            <i class="fa-solid fa-trash"></i>
+                                                                                            Delete
+                                                                                        </button>
+                                                                                    </form>
                                                                                 </td>
                                                                             </tr>
                                                                         <%

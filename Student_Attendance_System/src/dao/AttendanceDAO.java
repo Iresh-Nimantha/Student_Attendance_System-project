@@ -187,5 +187,47 @@ public class AttendanceDAO {
         }
         return details;
     }
-}
 
+    /**
+     * Deletes a lecture and all of its attendance records.
+     *
+     * @param lectureId lecture primary key to delete
+     * @return true if the lecture row was deleted, false otherwise
+     */
+    public boolean deleteLecture(int lectureId) {
+        String deleteAttendanceSql = "DELETE FROM attendance WHERE lecture_id = ?";
+        String deleteLectureSql = "DELETE FROM lectures WHERE lecture_id = ?";
+
+        Connection conn = DBConnection.getConnection();
+        if (conn == null) return false;
+
+        try {
+            conn.setAutoCommit(false);
+
+            try (PreparedStatement psAttend = conn.prepareStatement(deleteAttendanceSql)) {
+                psAttend.setInt(1, lectureId);
+                psAttend.executeUpdate();
+            }
+
+            int affectedLectureRows = 0;
+            try (PreparedStatement psLecture = conn.prepareStatement(deleteLectureSql)) {
+                psLecture.setInt(1, lectureId);
+                affectedLectureRows = psLecture.executeUpdate();
+            }
+
+            conn.commit();
+            return affectedLectureRows > 0;
+        } catch (SQLException e) {
+            try {
+                conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+            e.printStackTrace();
+        } finally {
+            try { conn.setAutoCommit(true); } catch (Exception ignored) {}
+            try { conn.close(); } catch (Exception ignored) {}
+        }
+        return false;
+    }
+}
